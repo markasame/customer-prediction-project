@@ -1,0 +1,29 @@
+# Data
+pandas>=2.2
+numpy>=2.0
+scikit-learn>=1.5
+imbalanced-learn>=0.12
+xgboost>=2.0
+joblib>=1.4
+ 
+# API
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+ 
+# Monitoring & Dashboard
+streamlit>=1.35
+evidently>=0.4
+plotly>=5.22
+ 
+# Explainability
+shap>=0.45
+ 
+# Testing
+pytest>=8.2
+ 
+# Utilities
+python-dotenv>=1.0
+pyyaml>=6.0
+requests>=2.32
+ 
