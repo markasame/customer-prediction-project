@@ -22,7 +22,7 @@ app = FastAPI(
 )
 
 # Load model once at startup
-model, pipeline, cfg = load_artifacts()
+model, pipeline, cfg, explainer = load_artifacts()
 prediction_count = 0
 start_time = time.time()
 
@@ -50,10 +50,15 @@ class CustomerFeatures(BaseModel):
     TotalCharges: float = Field(ge=0, example=2040.0)
 
 
+class RiskFactor(BaseModel):
+    feature: str
+    shap_value: float  # positive = pushes toward churn, negative = pushes away
+
+
 class PredictionResponse(BaseModel):
     churn_probability: float
     risk_label: str  # Low / Medium / High
-    top_risk_factors: list[str]
+    top_risk_factors: list[RiskFactor]
     model_version: str = "1.0.0"
 
 
@@ -74,7 +79,7 @@ def metrics():
 def predict_churn(customer: CustomerFeatures):
     global prediction_count
     try:
-        result = predict(customer.model_dump(), model, pipeline, cfg)
+        result = predict(customer.model_dump(), model, pipeline, cfg, explainer)
         prediction_count += 1
         logger.info(f"Prediction: prob={result['churn_probability']}, risk={result['risk_label']}")
         return PredictionResponse(**result)
@@ -90,7 +95,7 @@ def predict_batch(customers: list[CustomerFeatures]):
     results = []
     for customer in customers:
         try:
-            result = predict(customer.model_dump(), model, pipeline, cfg)
+            result = predict(customer.model_dump(), model, pipeline, cfg, explainer)
             results.append(PredictionResponse(**result))
             prediction_count += 1
         except Exception as e:
